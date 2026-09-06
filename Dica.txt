@@ -1,0 +1,46 @@
+# 🤖 Self-Bot — Pedrin
+> 💀 Desenvolvido por pedrin
+> 🔗 Suporte: https://discord.gg/nmDUsAeRxP
+
+---
+
+## ⚠️ AVISO IMPORTANTE
+**Self-bots violam os Termos de Serviço do Discord.** Não existe anti-ban garantido. **Use SEMPRE em conta de teste/descartável — NUNCA na sua conta principal!** Se banir, não tem como recuperar. Use por sua conta e risco.
+
+---
+
+## 📋 O QUE O BOT FAZ
+
+### ✅ Comando `+ativar`
+- Escaneia todos os membros do servidor onde foi usado
+- Manda mensagem direta (PV/DM) pra cada pessoa automaticamente
+- Respeita o tempo de delay entre cada mensagem pra evitar detecção
+
+### 🧠 IA de Resposta Automática no PV
+- Responde sozinha quando alguém te manda mensagem privada
+- Entende o que a pessoa falou
+- Se a pessoa disser que NÃO vai entrar no servidor, a IA tenta convencer ela
+- Só responde no PV — não interfere em canais dos servidores
+
+### 🛡️ Sistema de Segurança
+- Delay configurável entre mensagens
+- Proteção contra flood/spam
+- Detecta limite de mensagens e para automaticamente
+- Aviso de atividade suspeita do Discord
+
+---
+
+## 🛠️ COMO INSTALAR E USAR
+
+### 📱 No Termux (Android):
+```bash
+# Atualiza pacotes
+pkg update && pkg upgrade -y
+pkg install python git -y
+
+# Baixa o bot
+git clone https://github.com/minecraftpedrin05-max/Self-bot.git
+cd Self-bot
+
+# Instala as dependências
+pip install -r requirements.txt
