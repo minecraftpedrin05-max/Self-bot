@@ -1,9 +1,0 @@
-{
-    "token": "COLOCA_SEU_TOKEN_AQUI",
-    "dm_message": "Oi! Passando pra te avisar que o servidor tá esperando você! 🎉\n\nEntra lá: https://discord.gg/kvTg7GxvR",
-    "delay_segundos": 5,
-    "ia_ativa": true,
-    "groq_api_key": "COLOCA_SUA_CHAVE_GROQ_AQUI",
-    "groq_model": "llama3-8b-8192",
-    "ia_tentativa_convite": true
-}
