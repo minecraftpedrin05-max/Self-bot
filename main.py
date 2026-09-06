@@ -1,89 +1,156 @@
+import discord
 import json
 import sys
-import platform
-import discord
+import os
 from discord.ext import commands
 
-# ═══════════════════════════════════════════════
-# 🎨 TELA DE INÍCIO
-# ═══════════════════════════════════════════════
+# ──────────────────── CORES DO TERMINAL ────────────────────
+VERDE = "\033[92m"
+VERMELHO = "\033[91m"
+AMARELO = "\033[93m"
+CIANO = "\033[96m"
+ROXO = "\033[95m"
+RESET = "\033[0m"
 
-LOGO = """
+# ──────────────────── LOGO INICIAL ────────────────────
+def mostrar_logo():
+    logo = f"""{CIANO}
 ██╗   ██╗███████╗ ██████╗██╗  ██╗
 ██║   ██║██╔════╝██╔════╝██║ ██╔╝
 ██║   ██║█████╗  ██║     █████╔╝ 
 ╚██╗ ██╔╝██╔══╝  ██║     ██╔═██╗ 
  ╚████╔╝ ███████╗╚██████╗██║  ██╗
   ╚═══╝  ╚══════╝ ╚═════╝╚═╝  ╚═╝
-"""
+{RESET}
+{VERDE}VECK SelfBot{RESET} — Versão 1.0
+{AMARELO}Desenvolvido por pedrin 💀{RESET}
+{CIANO}Suporte: https://discord.gg/nmDUsAeRxP{RESET}
+{'─'*55}"""
+    print(logo)
 
-VERDE = "\033[92m"
-AZUL = "\033[94m"
-AMARELO = "\033[93m"
-VERMELHO = "\033[91m"
-RESET = "\033[0m"
+# ──────────────────── CARREGAR CONFIG ────────────────────
+def carregar_config():
+    caminho = os.path.join(os.path.dirname(__file__), "config.json")
+    if not os.path.exists(caminho):
+        print(f"{VERMELHO}[ERRO]{RESET} Arquivo config.json NÃO ENCONTRADO!")
+        print(f"{AMARELO}Crie o arquivo com: token, dm_message, delay_segundos{RESET}")
+        sys.exit(1)
+    
+    try:
+        with open(caminho, "r", encoding="utf-8") as f:
+            cfg = json.load(f)
+        print(f"{VERDE}[SUCCESS]{RESET} Configuração carregada!")
+        return cfg
+    except json.JSONDecodeError as e:
+        print(f"{VERMELHO}[ERRO]{RESET} Erro no JSON do config.json: {e}")
+        print(f"{AMARELO}Verifique se não faltou vírgula ou aspas!{RESET}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"{VERMELHO}[ERRO]{RESET} Não foi possível ler config.json: {e}")
+        sys.exit(1)
 
-def inicializar_tela():
-    print(f"{AZUL}{LOGO}{RESET}")
-    print(f"{AZUL}> Meu Selfbot — Versão 1.0{RESET}")
-    print(f"{AZUL}> Use por sua conta e risco — self-bots violam os ToS do Discord{RESET}")
-    print(f"{AZUL}> Desenvolvido por pedrin_yt {RESET}")
-    print(f"{AZUL}> Suporte: https://discord.gg/nmDUsAeRxP{RESET}")
-    print()
+# ──────────────────── INICIALIZAR BOT ────────────────────
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
 
-def info_sistema():
-    print(f"{AMARELO}[INFO]{RESET} Sistema Operacional: {platform.system()} {platform.release()}")
-    print(f"{AMARELO}[INFO]{RESET} Plataforma: android / termux")
-    print(f"{AMARELO}[INFO]{RESET} Python: {sys.version.split()[0]}")
-    print(f"{AMARELO}[INFO]{RESET} discord.py-self: {discord.__version__}")
-    print()
+bot = commands.Bot(command_prefix="+", intents=intents, help_command=None)
 
-# ═══════════════════════════════════════════════
-# 🚀 INÍCIO DO BOT
-# ═══════════════════════════════════════════════
-
-inicializar_tela()
-
-with open("config.json", encoding="utf-8") as f:
-    cfg = json.load(f)
-
-bot = commands.Bot(
-    command_prefix="+",
-    self_bot=True,
-    help_command=None
-)
-
+# ──────────────────── EVENTOS ────────────────────
 @bot.event
 async def on_ready():
-    print(f"{AMARELO}[INFO]{RESET} Conectando ao Discord...")
-    print(f"{VERDE}[SUCCESS]{RESET} Logado como: {bot.user}")
-    print(f"{VERDE}[SUCCESS]{RESET} ID do usuário: {bot.user.id}")
-    print(f"{AMARELO}[INFO]{RESET} Prefixo: +")
-    print(f"{AMARELO}[INFO]{RESET} Status: dnd")
-    print()
-    info_sistema()
-    print(f"{AMARELO}[INFO]{RESET} Carregando módulos...")
+    print(f"\n{VERDE}[✅] BOT CONECTADO!{RESET}")
+    print(f"   Usuário: {bot.user}")
+    print(f"   ID: {bot.user.id}")
+    print(f"   Servidores: {len(bot.guilds)}")
+    print(f"   Membros total: {sum(g.member_count for g in bot.guilds)}")
+    print(f"{CIANO}{'─'*55}{RESET}\n")
 
-    for cog in ["cogs.seguranca", "cogs.ativar", "cogs.extra", "cogs.chat_ia"]:
+    # Carrega config nos dados do bot pros cogs acessarem
+    bot.config = carregar_config()
+    bot.em_execucao = True
+    bot.mensagens_mandadas = 0
+    bot.erros_detectados = 0
+
+    # Carregar todos os módulos
+    await carregar_cogs()
+    print(f"\n{VERDE}[✅] TODOS OS MÓDULOS CARREGADOS — BOT PRONTO!{RESET}\n")
+
+# ──────────────────── CARREGAR MÓDULOS ────────────────────
+async def carregar_cogs():
+    cogs = [
+        "cogs.seguranca",
+        "cogs.ativar",
+        "cogs.chat_ia",
+        "cogs.status",
+        "cogs.limpeza",
+        "cogs.informacao",
+        "cogs.mensagens",
+        "cogs.diversao"
+    ]
+
+    for cog in cogs:
         try:
             await bot.load_extension(cog)
             print(f"{VERDE}[SUCCESS]{RESET} Módulo carregado: {cog}")
         except Exception as e:
-            print(f"{VERMELHO}[ERRO]{RESET} Falha ao carregar {cog}: {e}")
+            print(f"{VERMELHO}[ERRO]{RESET} Falha ao carregar {cog}")
+            print(f"   → {type(e).__name__}: {e}")
 
-    print()
-    print(f"{VERDE}[SUCCESS]{RESET} Bot pronto! Comandos disponíveis: {len(list(bot.commands))}")
-    print(f"{AMARELO}[INFO]{RESET} Digite +help para ver os comandos{RESET}")
-    print("-" * 55)
+# ──────────────────── AJUDA PERSONALIZADA ────────────────────
+@bot.command(name="help")
+async def ajuda(ctx):
+    msg = f"""{CIANO}
+📋 VECK SelfBot — Comandos Disponíveis
+{RESET}{'─'*40}
 
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        return
-    print(f"{VERMELHO}[ERRO]{RESET} {error}")
+📢 DIVULGAÇÃO
+  +ativar        → Manda PV pra todos os membros do servidor
 
-try:
-    bot.run(cfg["token"])
-except Exception as e:
-    print(f"{VERMELHO}[ERRO FATAL]{RESET} Não foi possível conectar: {e}")
+🛡️ SEGURANÇA
+  +parar         → Para TUDO imediatamente
+  +modo_seguro   → Delay 15s, proteção máxima
+  +modo_normal   → Volta ao padrão
+  +status_seguranca → Mostra contadores e estado
 
+🎭 STATUS
+  +jogar [texto]     → Status: Jogando...
+  +ouvindo [texto]   → Status: Ouvindo...
+  +assistindo [texto]→ Status: Assistindo...
+  +parar_status      → Remove status
+
+🧹 LIMPEZA
+  +limpar [qtd]  → Apaga suas mensagens (padrão: 10)
+
+ℹ️ INFORMAÇÃO
+  +eu            → Seus dados da conta
+  +servidor      → Dados do servidor atual
+
+💬 MENSAGENS
+  +dizer [texto] → Manda mensagem apagando o comando
+  +maiusculo / +minusculo / +inverter
+
+🎮 DIVERSÃO
+  +piada / +dado / +8ball [pergunta]
+
+{'─'*40}
+💀 Desenvolvido por pedrin
+{CIANO}IA Groq ativa no PV automaticamente{RESET}
+"""
+    await ctx.send(msg)
+
+# ──────────────────── INICIAR ────────────────────
+if __name__ == "__main__":
+    mostrar_logo()
+    bot.config = carregar_config()
+    
+    try:
+        print(f"{AMARELO}[⏳] Conectando ao Discord...{RESET}")
+        bot.run(bot.config["token"])
+    except discord.LoginFailure:
+        print(f"{VERMELHO}[ERRO]{RESET} Token INVÁLIDO ou expirado!")
+        print(f"{AMARELO}Verifique o token no config.json{RESET}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"{VERMELHO}[ERRO FATAL]{RESET} {type(e).__name__}: {e}")
+        sys.exit(1)
