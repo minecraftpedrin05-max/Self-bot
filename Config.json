@@ -1,0 +1,5 @@
+{
+    "token": "COLOCA_SEU_TOKEN_AQUI", #coloca seu token do discord n e bot
+    "dm_message": "Oi! Passando pra te avisar...", #a mensagem que vai aparecer na dm da pessoa
+    "delay_segundos": 5 #o tempo que ele vai mandando em diferente pv
+}
