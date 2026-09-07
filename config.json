@@ -1,0 +1,7 @@
+{
+    "token": "COLOQUE_SEU_TOKEN_AQUI",
+    "dm_message": "Oi! Passando pra te avisar que temos um servidor incrível! https://discord.gg/seu-link",
+    "delay_segundos": 6,
+    "modo_seguro": true,
+    "limite_mensagens_hora": 80
+}
